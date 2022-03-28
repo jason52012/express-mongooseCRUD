@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student List</title>
+  </head>
+  <body>
+    <table>
+      <% if(students != null){ students.forEach(student => { %>
+      <tr>
+        <td>ID: <%=student.id %></td>
+        <td>Name: <%=student.name %></td>
+        <td>Age: <%=student.age %></td>
+        <td>Merit: <%=student.scholarShip.merit %></td>
+        <td>Other: <%=student.scholarShip.other %></td>
+        <td>
+          Total scholarShip: <%=student.scholarShip.merit +
+          student.scholarShip.other %>
+        </td>
+        <td>
+          <a href="/students/update/<%=student.id %>"
+            >go to update studentPage</a
+          >
+        </td>
+      </tr>
+      <% }); }%>
+      <a href="/students/insert">add new student</a>
+    </table>
+  </body>
+</html>

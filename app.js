@@ -134,6 +134,37 @@ app.delete("/students/delete/:id", (req, res) => {
     });
 });
 
+class newData {
+  constructor() {}
+  setProperty(key, value) {
+    if (key !== "merit" && key !== "other") {
+      this[key] = value;
+    } else {
+      this[`scholarShip.${key}`] = value;
+    }
+  }
+}
+
+// do patch
+app.patch("/students/:id", async (req, res) => {
+  let { id } = req.params;
+  let newObject = new newData();
+
+  for (let property in req.body) {
+    newObject.setProperty(property, req.body[property]);
+  }
+  try {
+    let student = await Student.findOneAndUpdate({ id: id }, newObject, {
+      new: true,
+      runValidators: true,
+    });
+    res.send({ student: student });
+  } catch (e) {
+    console.err(e);
+    res.send("error update");
+  }
+});
+
 app.listen("3000", () => {
   console.log("port 3000 is running now.");
 });

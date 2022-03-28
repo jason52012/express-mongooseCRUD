@@ -6,10 +6,42 @@ const Student = require("./models/student");
 const methodOverride = require("method-override");
 const app = express();
 
+/*
+ * app.js execute order => module.require -> middleware -> route
+ * middleware ref => http://expressjs.com/zh-tw/api.html#middleware-callback-function-examples
+ * example => app.use(function (req, res, next) {
+                  next()
+              })
+*/
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: false }));
 // override with POST having ?_method=DELETE
 app.use(methodOverride("_method"));
+app.use(function (req, res, next) {
+  console.log("first");
+  next();
+});
+// app.use(function (req, res, next) {
+// console.log("second");
+// // res.send("stop going specific route");
+// next();
+// });
+
+const studentMiddleWare = (req, res, next) => {
+  console.log("student middleware");
+  next();
+};
+
+//specific route middleware
+// app.use("/student", function (req, res, next) {
+//   console.log("specific middleware");
+//   // res.send("stop going specific route");
+//   next();
+// });
+
+app.get("/student", studentMiddleWare, (req, res) => {
+  res.render("index.ejs");
+});
 
 // connect to mongoDB
 mongoose
@@ -163,6 +195,62 @@ app.patch("/students/:id", async (req, res) => {
     console.err(e);
     res.send("error update");
   }
+});
+
+// error handler -> async funciton
+// app.get("/", async (req, res, next) => {
+//   try {
+//     let foundDate = Student.findOned({ id: 100 });
+//     res.send(foundDate);
+//   } catch (e) {
+//     next(e);
+//   }
+// });
+
+// validator error need to be caught by .catch() *****
+// go to select all student
+// app.get("/", async (req, res, next) => {
+//   try {
+// let student = await Student({
+//   id: 105,
+//   name: "JACKY",
+//   age: 81,
+//   scholarShip: {
+//     merit: -1,
+//     other: 0,
+//   },
+// });
+// student.save().then(() => {
+//   res.send("save successfully");
+// }).catch(e){
+//   res.send("save unsuccessfully");
+// };
+//     await Student.findOneAndUpdate(
+//       { id: 105 },
+//       { scholarShip: { merit: -1 } },
+//       { new: true, runValidators: true },
+//       (err, doc) => {
+//         if (err) {
+//           res.send(err);
+//         } else {
+//           res.send(doc);
+//         }
+//       }
+//     );
+//   } catch (e) {
+//     next(e);
+//   }
+// });
+
+// error handler for universal route
+app.get("/*", (req, res) => {
+  res.status(404).send("404 Page not found.");
+});
+
+// error handler for mormal error
+app.use((err, req, res, next) => {
+  console.log(err);
+  res.status(500).send("Something is broken. We will fix it soon.");
 });
 
 app.listen("3000", () => {
